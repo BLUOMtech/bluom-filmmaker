@@ -13,7 +13,6 @@ function generatePassword() {
 function unlockSite() {
   pwScreen.style.display = 'none';
   mainContent.style.display = 'block';
-  localStorage.setItem('blMovieHubUnlocked', generatePassword());
 }
 
 // Unlock button click
@@ -21,9 +20,6 @@ unlockBtn.addEventListener('click', () => {
   if(pwInput.value === generatePassword()) unlockSite();
   else pwMessage.textContent = "Incorrect password 🔒";
 });
-
-// Auto-unlock if stored password matches
-if(localStorage.getItem('blMovieHubUnlocked') === generatePassword()) unlockSite();
 
 // ==================== TAB SYSTEM ====================
 const tabBtns = document.querySelectorAll('.tabBtn');
@@ -40,17 +36,11 @@ tabBtns[0].click(); // default first tab
 
 // ==================== QUILL SCRIPT EDITOR ====================
 const quill = new Quill('#editor', { theme: 'snow' });
-// Load saved script
-if(localStorage.getItem('blMovieHubScript')) quill.setText(localStorage.getItem('blMovieHubScript'));
-
-// Save script to localStorage on change
-quill.on('text-change', () => {
-  localStorage.setItem('blMovieHubScript', quill.getText());
-});
 
 // ==================== SCRIPT UPLOAD ====================
 const fileInput = document.getElementById('fileInput');
 const filePreview = document.getElementById('filePreview');
+
 fileInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if(!file) return;
@@ -73,22 +63,10 @@ fileInput.addEventListener('change', async (e) => {
   } else filePreview.textContent = "Unsupported file type.";
 });
 
-// ==================== MEDIA UPLOAD & MEMORY ====================
+// ==================== MEDIA MEMORY ====================
 const mediaInput = document.getElementById('mediaInput');
 const mediaPreview = document.getElementById('mediaPreview');
 let mediaFiles = [];
-
-// Load saved media
-if(localStorage.getItem('blMovieHubMedia')) {
-  mediaFiles = JSON.parse(localStorage.getItem('blMovieHubMedia'));
-  mediaFiles.forEach(src => {
-    let el;
-    if(src.startsWith('data:image')) el = document.createElement('img');
-    else if(src.startsWith('data:video')) { el = document.createElement('video'); el.controls=true; }
-    el.src = src;
-    mediaPreview.appendChild(el);
-  });
-}
 
 // Upload new media
 mediaInput.addEventListener('change', e => {
@@ -103,7 +81,6 @@ mediaInput.addEventListener('change', e => {
       el.src = reader.result;
       mediaPreview.appendChild(el);
       mediaFiles.push(reader.result);
-      localStorage.setItem('blMovieHubMedia', JSON.stringify(mediaFiles));
     }
     reader.readAsDataURL(file);
   }
@@ -120,10 +97,6 @@ const castInput = document.getElementById('castInput');
 const castPreview = document.getElementById('castPreview');
 const addCastBtn = document.getElementById('addCast');
 let castList = [];
-
-// Load saved cast
-if(localStorage.getItem('blMovieHubCast')) castList = JSON.parse(localStorage.getItem('blMovieHubCast'));
-renderCast();
 
 function renderCast(){
   castPreview.innerHTML = '';
@@ -148,7 +121,6 @@ function renderCast(){
       const idx = e.target.dataset.index;
       const field = e.target.dataset.field;
       castList[idx][field] = e.target.value;
-      localStorage.setItem('blMovieHubCast', JSON.stringify(castList));
     });
   });
 
@@ -156,7 +128,6 @@ function renderCast(){
   castPreview.querySelectorAll('button').forEach(btn=>{
     btn.addEventListener('click', e=>{
       castList.splice(e.target.dataset.index,1);
-      localStorage.setItem('blMovieHubCast', JSON.stringify(castList));
       renderCast();
     });
   });
@@ -165,7 +136,14 @@ function renderCast(){
 // Add new cast member
 addCastBtn.addEventListener('click',()=>{
   castList.push({name:"New Actor", role:"Role"});
-  localStorage.setItem('blMovieHubCast', JSON.stringify(castList));
+  renderCast();
+});
+
+// Upload cast JSON
+castInput.addEventListener('change', async e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const text = await file.text();
+  castList = JSON.parse(text);
   renderCast();
 });
 
