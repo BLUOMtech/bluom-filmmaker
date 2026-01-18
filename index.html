@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BLUOM Movie Hub 🎬</title>
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="passwordScreen">
+  <h2>Enter Access Password 🔑</h2>
+  <input type="password" id="sitePassword" placeholder="Password" />
+  <button id="unlockBtn">Unlock</button>
+  <p id="pwMessage"></p>
+</div>
+
+<div id="mainContent" style="display:none;">
+<header>
+  <h1>BLUOM Movie Hub 🎬</h1>
+</header>
+
+<main>
+  <nav class="tabs">
+    <button class="tabBtn" data-tab="scriptTab">Script</button>
+    <button class="tabBtn" data-tab="castTab">Cast & Crew</button>
+    <button class="tabBtn" data-tab="mediaTab">Media</button>
+  </nav>
+
+  <!-- SCRIPT TAB -->
+  <section id="scriptTab" class="tabContent">
+    <h2>Upload Script or Movie Notes</h2>
+    <input type="file" id="fileInput" accept=".txt,.md,.json,.docx" />
+    <div id="filePreview" class="file-preview">Uploaded content will appear here...</div>
+    <h2>Edit Script</h2>
+    <div id="editor"></div>
+  </section>
+
+  <!-- CAST TAB -->
+  <section id="castTab" class="tabContent" style="display:none;">
+    <h2>Cast & Crew</h2>
+    <input type="file" id="castInput" accept=".json" />
+    <div id="castPreview" class="file-preview">Upload or edit cast JSON here...</div>
+    <button id="addCast">Add Cast Member ➕</button>
+  </section>
+
+  <!-- MEDIA TAB -->
+  <section id="mediaTab" class="tabContent" style="display:none;">
+    <h2>Upload Media (Videos & Images)</h2>
+    <input type="file" id="mediaInput" accept="image/*,video/*" multiple />
+    <div id="mediaPreview" class="file-preview">Uploaded media will appear here...</div>
+    <button id="downloadMedia">Download Media for Another Device 💾</button>
+  </section>
+
+  <!-- Download Buttons -->
+  <section class="buttons">
+    <button id="downloadPdf">Download PDF 📄</button>
+    <button id="downloadText">Download Text 📝</button>
+    <button id="downloadCast">Download Cast JSON 🗂️</button>
+  </section>
+</main>
+</div>
+
+<!-- Libraries -->
+<script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.20/mammoth.browser.min.js"></script>
+
+<script src="script.js"></script>
+</body>
+</html>

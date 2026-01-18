@@ -1,0 +1,25 @@
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+header { background: #1e90ff; color: white; padding: 1rem; text-align: center; }
+main { padding: 2rem; max-width: 900px; margin: auto; }
+
+section { margin-bottom: 2rem; }
+.file-preview { border: 1px solid #ccc; padding: 1rem; margin-top: 1rem; background: #fff; max-height: 300px; overflow-y: auto; }
+#editor { height: 400px; background: white; margin-bottom: 1rem; }
+
+.buttons button, #addCast { margin: 0.5rem 0.5rem 0.5rem 0; padding: 0.5rem 1rem; font-size: 1rem; cursor: pointer; background: #1e90ff; color: white; border: none; border-radius: 5px; transition: 0.2s; }
+.buttons button:hover, #addCast:hover { background: #0f6fc1; }
+#imagePreview img, #mediaPreview img, #mediaPreview video { max-width: 150px; margin: 0.5rem; border: 1px solid #ccc; border-radius: 4px; display:block; }
+
+#castPreview table { width: 100%; border-collapse: collapse; }
+#castPreview th, #castPreview td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+#castPreview th { background: #1e90ff; color: white; }
+input.castInput { width: 100%; }
+
+nav.tabs { display: flex; gap: 1rem; margin-bottom: 1rem; }
+nav.tabs button { background:#ccc; color:#000; border:none; padding:0.5rem 1rem; cursor:pointer; border-radius:4px; }
+nav.tabs button.active { background:#1e90ff; color:#fff; }
+
+#passwordScreen { text-align:center; margin-top:100px; }
+#passwordScreen input { padding:0.5rem; font-size:1rem; margin:0.5rem; }
+#passwordScreen button { padding:0.5rem 1rem; font-size:1rem; cursor:pointer; background:#1e90ff;color:white;border:none;border-radius:4px; }
+#pwMessage { color:red; margin-top:0.5rem; }
