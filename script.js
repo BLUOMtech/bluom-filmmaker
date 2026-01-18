@@ -1,4 +1,4 @@
-// === PASSWORD & SESSION MEMORY ===
+// ==================== PASSWORD SYSTEM ====================
 const pwScreen = document.getElementById('passwordScreen');
 const mainContent = document.getElementById('mainContent');
 const unlockBtn = document.getElementById('unlockBtn');
@@ -13,54 +13,47 @@ function generatePassword() {
 function unlockSite() {
   pwScreen.style.display = 'none';
   mainContent.style.display = 'block';
-  localStorage.setItem('blMovieHubUnlocked', 'true');
+  localStorage.setItem('blMovieHubUnlocked', generatePassword());
 }
 
 // Unlock button click
 unlockBtn.addEventListener('click', () => {
-  if(pwInput.value === generatePassword()) {
-    unlockSite();
-  } else {
-    pwMessage.textContent = "Incorrect password! 🔒";
-  }
+  if(pwInput.value === generatePassword()) unlockSite();
+  else pwMessage.textContent = "Incorrect password 🔒";
 });
 
-// Auto-unlock if previously unlocked in this block
-if(localStorage.getItem('blMovieHubUnlocked') === 'true' && pwInput.value === generatePassword()) {
-  unlockSite();
-}
+// Auto-unlock if stored password matches
+if(localStorage.getItem('blMovieHubUnlocked') === generatePassword()) unlockSite();
 
-// === TABS SYSTEM ===
+// ==================== TAB SYSTEM ====================
 const tabBtns = document.querySelectorAll('.tabBtn');
 const tabContents = document.querySelectorAll('.tabContent');
 tabBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     tabContents.forEach(t => t.style.display='none');
     document.getElementById(btn.dataset.tab).style.display='block';
-    tabBtns.forEach(b=>b.classList.remove('active'));
+    tabBtns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
   });
 });
-tabBtns[0].click(); // Init first tab
+tabBtns[0].click(); // default first tab
 
-// === QUILL EDITOR ===
+// ==================== QUILL SCRIPT EDITOR ====================
 const quill = new Quill('#editor', { theme: 'snow' });
-
 // Load saved script
-if(localStorage.getItem('blMovieHubScript')) {
-  quill.setText(localStorage.getItem('blMovieHubScript'));
-}
+if(localStorage.getItem('blMovieHubScript')) quill.setText(localStorage.getItem('blMovieHubScript'));
 
-// Save script on change
+// Save script to localStorage on change
 quill.on('text-change', () => {
   localStorage.setItem('blMovieHubScript', quill.getText());
 });
 
-// === SCRIPT UPLOAD ===
+// ==================== SCRIPT UPLOAD ====================
 const fileInput = document.getElementById('fileInput');
 const filePreview = document.getElementById('filePreview');
 fileInput.addEventListener('change', async (e) => {
-  const file = e.target.files[0]; if(!file) return;
+  const file = e.target.files[0];
+  if(!file) return;
   const ext = file.name.split('.').pop().toLowerCase();
 
   if(ext==='txt'||ext==='md'){ 
@@ -72,15 +65,15 @@ fileInput.addEventListener('change', async (e) => {
     filePreview.textContent = text; 
     quill.setText(text); 
   } else if(ext==='docx'){ 
-    const arrayBuffer=await file.arrayBuffer(); 
+    const arrayBuffer = await file.arrayBuffer(); 
     mammoth.extractRawText({arrayBuffer}).then(r=>{
-      filePreview.textContent=r.value;
+      filePreview.textContent = r.value;
       quill.setText(r.value);
     }); 
-  } else { filePreview.textContent="Unsupported file type."; }
+  } else filePreview.textContent = "Unsupported file type.";
 });
 
-// === MEDIA UPLOAD & LOCALSTORAGE ===
+// ==================== MEDIA UPLOAD & MEMORY ====================
 const mediaInput = document.getElementById('mediaInput');
 const mediaPreview = document.getElementById('mediaPreview');
 let mediaFiles = [];
@@ -88,25 +81,26 @@ let mediaFiles = [];
 // Load saved media
 if(localStorage.getItem('blMovieHubMedia')) {
   mediaFiles = JSON.parse(localStorage.getItem('blMovieHubMedia'));
-  mediaFiles.forEach(src=>{
+  mediaFiles.forEach(src => {
     let el;
-    if(src.startsWith('data:image')) el=document.createElement('img');
-    else if(src.startsWith('data:video')){ el=document.createElement('video'); el.controls=true; }
-    el.src=src;
+    if(src.startsWith('data:image')) el = document.createElement('img');
+    else if(src.startsWith('data:video')) { el = document.createElement('video'); el.controls=true; }
+    el.src = src;
     mediaPreview.appendChild(el);
   });
 }
 
+// Upload new media
 mediaInput.addEventListener('change', e => {
-  mediaPreview.innerHTML=""; 
-  mediaFiles=[];
+  mediaPreview.innerHTML = '';
+  mediaFiles = [];
   for(let file of e.target.files){
-    const reader=new FileReader();
-    reader.onload=()=>{
+    const reader = new FileReader();
+    reader.onload = () => {
       let el;
-      if(file.type.startsWith('image')) el=document.createElement('img');
-      else if(file.type.startsWith('video')){ el=document.createElement('video'); el.controls=true; }
-      el.src=reader.result;
+      if(file.type.startsWith('image')) el = document.createElement('img');
+      else if(file.type.startsWith('video')) { el = document.createElement('video'); el.controls = true; }
+      el.src = reader.result;
       mediaPreview.appendChild(el);
       mediaFiles.push(reader.result);
       localStorage.setItem('blMovieHubMedia', JSON.stringify(mediaFiles));
@@ -121,67 +115,65 @@ document.getElementById('downloadMedia').addEventListener('click',()=>{
   saveAs(blob,"media.json");
 });
 
-// === CAST & CREW ===
+// ==================== CAST & CREW ====================
 const castInput = document.getElementById('castInput');
 const castPreview = document.getElementById('castPreview');
 const addCastBtn = document.getElementById('addCast');
 let castList = [];
 
 // Load saved cast
-if(localStorage.getItem('blMovieHubCast')) {
-  castList = JSON.parse(localStorage.getItem('blMovieHubCast'));
-  renderCast();
-}
+if(localStorage.getItem('blMovieHubCast')) castList = JSON.parse(localStorage.getItem('blMovieHubCast'));
+renderCast();
 
 function renderCast(){
-  castPreview.innerHTML=""; 
-  if(castList.length===0){ castPreview.textContent="No cast members yet."; return; }
+  castPreview.innerHTML = '';
+  if(castList.length === 0){ castPreview.textContent="No cast members yet."; return; }
 
-  const table=document.createElement('table');
-  table.innerHTML="<tr><th>Name</th><th>Role</th><th>Remove</th></tr>";
+  const table = document.createElement('table');
+  table.innerHTML = "<tr><th>Name</th><th>Role</th><th>Remove</th></tr>";
   castList.forEach((m,i)=>{
-    const row=document.createElement('tr');
-    row.innerHTML=`<td><input class="castInput" value="${m.name}" data-index="${i}" data-field="name"></td>
-                   <td><input class="castInput" value="${m.role}" data-index="${i}" data-field="role"></td>
-                   <td><button data-index="${i}" class="removeCast">❌</button></td>`;
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><input value="${m.name}" data-index="${i}" data-field="name"></td>
+      <td><input value="${m.role}" data-index="${i}" data-field="role"></td>
+      <td><button data-index="${i}">❌</button></td>
+    `;
     table.appendChild(row);
   });
   castPreview.appendChild(table);
 
-  document.querySelectorAll('.removeCast').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      castList.splice(e.target.dataset.index,1);
-      saveCast();
-      renderCast();
+  // Input changes
+  castPreview.querySelectorAll('input').forEach(input=>{
+    input.addEventListener('input', e=>{
+      const idx = e.target.dataset.index;
+      const field = e.target.dataset.field;
+      castList[idx][field] = e.target.value;
+      localStorage.setItem('blMovieHubCast', JSON.stringify(castList));
     });
   });
 
-  document.querySelectorAll('.castInput').forEach(input=>{
-    input.addEventListener('input', e=>{
-      castList[e.target.dataset.index][e.target.dataset.field] = e.target.value;
-      saveCast();
+  // Remove buttons
+  castPreview.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      castList.splice(e.target.dataset.index,1);
+      localStorage.setItem('blMovieHubCast', JSON.stringify(castList));
+      renderCast();
     });
   });
 }
 
-// Load cast JSON
-castInput.addEventListener('change', async e=>{
-  const file = e.target.files[0]; if(!file) return;
-  const text = await file.text();
-  castList = JSON.parse(text);
-  saveCast();
+// Add new cast member
+addCastBtn.addEventListener('click',()=>{
+  castList.push({name:"New Actor", role:"Role"});
+  localStorage.setItem('blMovieHubCast', JSON.stringify(castList));
   renderCast();
 });
 
-addCastBtn.addEventListener('click',()=>{castList.push({name:"New Actor",role:"Role"}); saveCast(); renderCast();});
-
-function saveCast(){ localStorage.setItem('blMovieHubCast', JSON.stringify(castList)); }
-
-// === SCENE AUTO-NUMBERING & DIALOGUE FORMATTING ===
+// ==================== SCRIPT FORMATTING ====================
 function formatScript(text) {
   const lines = text.split("\n");
   let sceneCount = 0;
-  const formatted = lines.map(line => {
+  return lines.map(line=>{
     line = line.trim();
     if(/^scene\s*\d*:?/i.test(line) || /^scenes?\s*:/i.test(line)){
       sceneCount++; line = `SCENE ${sceneCount}: ${line.replace(/^scene\s*\d*:?\s*/i,'')}`;
@@ -190,40 +182,40 @@ function formatScript(text) {
     if(/^[A-Z\s]+$/.test(line) && line.length>0 && line.length<30) return line+":";
     if(line.length>0 && !line.startsWith("SCENE") && !/^[A-Z\s]+:/.test(line)) return "    "+line;
     return line;
-  });
-  return formatted.join("\n");
+  }).join("\n");
 }
 function getFormattedScript(){ return formatScript(quill.getText()); }
 
-// === DOWNLOAD PDF ===
+// ==================== DOWNLOAD PDF ====================
 document.getElementById('downloadPdf').addEventListener('click', ()=>{
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF(); let y=10;
-  const text = getFormattedScript();
-  const lines = doc.splitTextToSize(text,180);
-  for(let line of lines){ if(y>280){doc.addPage();y=10;} doc.text(line,10,y); y+=7; }
+  const lines = doc.splitTextToSize(getFormattedScript(),180);
+  for(let line of lines){ if(y>280){doc.addPage(); y=10;} doc.text(line,10,y); y+=7; }
 
+  // Cast
   if(castList.length>0){
-    if(y>270){doc.addPage();y=10;}
+    if(y>270){doc.addPage(); y=10;}
     doc.text("Cast & Crew:",10,y); y+=10;
-    castList.forEach(m=>{if(y>280){doc.addPage();y=10;} doc.text(`${m.name} - ${m.role}`,10,y); y+=7;});
+    castList.forEach(m=>{ if(y>280){doc.addPage();y=10;} doc.text(`${m.name} - ${m.role}`,10,y); y+=7; });
   }
 
-  for(let img of mediaFiles){
-    if(y>250){doc.addPage();y=10;}
+  // Media
+  mediaFiles.forEach(img=>{
+    if(y>250){doc.addPage(); y=10;}
     doc.addImage(img,'JPEG',10,y,180,100); y+=105;
-  }
+  });
 
   doc.save('movie-hub.pdf');
 });
 
-// === DOWNLOAD TEXT ===
+// ==================== DOWNLOAD TEXT ====================
 document.getElementById('downloadText').addEventListener('click',()=>{
   const blob = new Blob([quill.getText()],{type:"text/plain;charset=utf-8"});
   saveAs(blob,"movie-hub.txt");
 });
 
-// === DOWNLOAD CAST JSON ===
+// ==================== DOWNLOAD CAST JSON ====================
 document.getElementById('downloadCast').addEventListener('click',()=>{
   const blob = new Blob([JSON.stringify(castList,null,2)],{type:"application/json;charset=utf-8"});
   saveAs(blob,"cast.json");
